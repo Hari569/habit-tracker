@@ -10,7 +10,6 @@ from pathlib import Path
 def create_database():
     """Create the database and tables if they don't exist"""
     db_path = "habits.db"
-    
     # Create database connection
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -62,8 +61,9 @@ def main():
     # Create database
     create_database()
     
-    # Change to backend directory
-    os.chdir("backend")
+    # Add backend directory to Python path
+    backend_path = Path("backend").resolve()
+    sys.path.insert(0, str(backend_path))
     
     # Start the server
     print("🌟 Starting FastAPI server on http://localhost:8000")
@@ -72,7 +72,8 @@ def main():
     # Import and run
     try:
         import uvicorn
-        uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+        # Run from the backend directory but with correct module path
+        uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True, reload_dirs=["backend"])
     except ImportError:
         print("❌ Error: uvicorn not installed. Please run: pip install -r requirements.txt")
         sys.exit(1)
